@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Utility Application</title>
+</head>
+<body>
+    <h1>Welcome to Multi-Utility Application</h1>
+    
+    <h2>Send Email</h2>
+    <form id="email-form">
+        <input type="email" id="from" placeholder="From" required><br>
+        <input type="email" id="to" placeholder="To" required><br>
+        <input type="text" id="subject" placeholder="Subject" required><br>
+        <textarea id="message" placeholder="Message" required></textarea><br>
+        <input type="password" id="password" placeholder="Gmail App-Specific Password" required><br>
+        <button type="submit">Send Email</button>
+    </form>
+
+    <h2>Send SMS</h2>
+    <form id="sms-form">
+        <input type="tel" id="phone-number" placeholder="Phone Number" required><br>
+        <textarea id="sms-message" placeholder="Message" required></textarea><br>
+        <button type="submit">Send SMS</button>
+    </form>
+
+    <h2>Send WhatsApp Message</h2>
+    <form id="whatsapp-form">
+        <input type="tel" id="whatsapp-number" placeholder="Phone Number" required><br>
+        <textarea id="whatsapp-message" placeholder="Message" required></textarea><br>
+        <input type="number" id="hour" placeholder="Hour" required><br>
+        <input type="number" id="minute" placeholder="Minute" required><br>
+        <button type="submit">Send WhatsApp Message</button>
+    </form>
+
+    <h2>Open Chrome</h2>
+    <button onclick="openChrome()">Open Chrome</button>
+
+    <h2>Open Notepad</h2>
+    <button onclick="openNotepad()">Open Notepad</button>
+
+    <h2>Text to Speech</h2>
+    <form id="speech-form">
+        <textarea id="text-to-speak" placeholder="Enter text" required></textarea><br>
+        <button type="submit">Speak Text</button>
+    </form>
+
+    <h2>Wikipedia Data</h2>
+    <form id="wikipedia-form">
+        <input type="text" id="wikipedia-topic" placeholder="Enter topic" required><br>
+        <button type="submit">Get Wikipedia Data</button>
+    </form>
+
+    <h2>Open ChatGPT</h2>
+    <form id="chatgpt-form">
+        <textarea id="chatgpt-message" placeholder="Ask a question" required></textarea><br>
+        <button type="submit">Ask ChatGPT</button>
+    </form>
+
+    <script>
+        document.getElementById('email-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const from = document.getElementById('from').value;
+            const to = document.getElementById('to').value.split(',');
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://127.0.0.1:5000/send_email', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({from, to, subject, message, password})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.status || data.error))
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('sms-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const to = document.getElementById('phone-number').value;
+            const message = document.getElementById('sms-message').value;
+
+            fetch('http://127.0.0.1:5000/send_sms', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({to, message})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.status || data.error))
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('whatsapp-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const phone_number = document.getElementById('whatsapp-number').value;
+            const message = document.getElementById('whatsapp-message').value;
+            const hour = document.getElementById('hour').value;
+            const minute = document.getElementById('minute').value;
+
+            fetch('http://127.0.0.1:5000/send_whatsapp_message', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({phone_number, message, hour, minute})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.status || data.error))
+            .catch(error => console.error('Error:', error));
+        });
+
+        function openChrome() {
+            fetch('http://127.0.0.1:5000/open_chrome')
+            .then(response => response.json())
+            .then(data => alert(data.status || data.error))
+            .catch(error => console.error('Error:', error));
+        }
+
+        function openNotepad() {
+            fetch('http://127.0.0.1:5000/open_notepad')
+            .then(response => response.json())
+            .then(data => alert(data.status || data.error))
+            .catch(error => console.error('Error:', error));
+        }
+
+        document.getElementById('speech-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const text = document.getElementById('text-to-speak').value;
+
+            fetch('http://127.0.0.1:5000/speak_text', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({text})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.status || data.error))
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('wikipedia-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const topic = document.getElementById('wikipedia-topic').value;
+
+            fetch('http://127.0.0.1:5000/get_wikipedia_data', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({topic})
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`Title: ${data.title}\n\nContent:\n${data.content.join('\n\n')}`);
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('chatgpt-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = document.getElementById('chatgpt-message').value;
+
+            fetch('http://127.0.0.1:5000/open_chatgpt', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message})
+            })
+            .then(response => response.json())
+            .then(data => alert(data.reply))
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
